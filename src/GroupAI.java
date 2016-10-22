@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class GroupAI extends CKPlayer {
 
-    private Point bestPoint = new Point(); // (i, j)
+    private Point bestPoints = new Point(); // (i, j)
 
 	public GroupAI(byte player, BoardModel state) {
 		super(player, state);
