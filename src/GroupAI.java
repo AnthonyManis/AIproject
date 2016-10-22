@@ -2,6 +2,8 @@ import connectK.CKPlayer;
 import connectK.BoardModel;
 import java.awt.Point;
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
 
 public class GroupAI extends CKPlayer {
 
@@ -66,6 +68,89 @@ public class GroupAI extends CKPlayer {
 	        }
 	    }
 	    return bestValue;
+	}
+
+	List<Point> winningSpaces() {
+		List<Point> ws = new ArrayList<Point>(kLength);
+		for (int i = 0; i < width; ++i) {
+			for (int j = 0; j < height; ++j) {
+				// if the space previous is either not the same as current,
+				// empty, or OOB
+				// while the next thing is the same AND not OOB
+				// increment contiguous count
+				// if count greater than k, return the winner
+				// returns on first winning sequence found
+				// searches to the right and up
+
+				if (pieces[i][j] == 0) {
+					if (gravity)
+						break;// go to next column
+					else
+						continue;// move up
+				}
+
+				if (i - 1 < 0 || pieces[i - 1][j] != pieces[i][j]) { // horizontal
+					int count = 1;
+					while (i + count < width && pieces[i][j] == pieces[i + count][j]) {
+						++count;
+						if (count >= kLength) {
+							for (int k = 0; k < kLength; ++k)
+								ws.add(new Point(i + k, j));
+							return ws;
+						}
+					}
+				}
+
+				if (i - 1 < 0 || j - 1 < 0 || pieces[i - 1][j - 1] != pieces[i][j]) { // diagonal
+																						// up,
+																						// (j-1<0)
+																						// needed
+																						// to
+																						// avoid
+																						// OOB
+					int count = 1;
+					while (i + count < width && j + count < height && pieces[i][j] == pieces[i + count][j + count]) {
+						++count;
+						if (count >= kLength) {
+							for (int k = 0; k < kLength; ++k)
+								ws.add(new Point(i + k, j + k));
+							return ws;
+						}
+					}
+				}
+
+				if (i - 1 < 0 || j + 1 >= height || pieces[i - 1][j + 1] != pieces[i][j]) { // diagonal
+																							// down,
+																							// (j+1>=height)
+																							// needed
+																							// to
+																							// avoid
+																							// OOB
+					int count = 1;
+					while (i + count < width && j - count >= 0 && pieces[i][j] == pieces[i + count][j - count]) {
+						++count;
+						if (count >= kLength) {
+							for (int k = 0; k < kLength; ++k)
+								ws.add(new Point(i + k, j - k));
+							return ws;
+						}
+					}
+				}
+
+				if (j - 1 < 0 || pieces[i][j - 1] != pieces[i][j]) { // vertical
+					int count = 1;
+					while (j + count < height && pieces[i][j] == pieces[i][j + count]) {
+						++count;
+						if (count >= kLength) {
+							for (int k = 0; k < kLength; ++k)
+								ws.add(new Point(i, j + k));
+							return ws;
+						}
+					}
+				}
+			}
+		}
+		return ws;
 	}
 
 	@Override
