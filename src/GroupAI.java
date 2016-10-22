@@ -70,10 +70,13 @@ public class GroupAI extends CKPlayer {
 	    return bestValue;
 	}
 
-	List<Point> winningSpaces() {
-		List<Point> ws = new ArrayList<Point>(kLength);
-		for (int i = 0; i < width; ++i) {
-			for (int j = 0; j < height; ++j) {
+	List<Integer> winningSpaces(BoardModel state) {
+		int p1Count = 0;
+		int p2Count = 0;
+		List<Integer> result = new ArrayList<Integer>();
+		List<Point> ws = new ArrayList<Point>(state.kLength);
+		for (int i = 0; i < state.width; ++i) {
+			for (int j = 0; j < state.height; ++j) {
 				// if the space previous is either not the same as current,
 				// empty, or OOB
 				// while the next thing is the same AND not OOB
@@ -82,26 +85,30 @@ public class GroupAI extends CKPlayer {
 				// returns on first winning sequence found
 				// searches to the right and up
 
-				if (pieces[i][j] == 0) {
-					if (gravity)
+				if (state.pieces[i][j] == 0) {
+					if (state.gravity)
 						break;// go to next column
 					else
 						continue;// move up
 				}
 
-				if (i - 1 < 0 || pieces[i - 1][j] != pieces[i][j]) { // horizontal
+				if (i - 1 < 0 || state.pieces[i - 1][j] != state.pieces[i][j]) { // horizontal
 					int count = 1;
-					while (i + count < width && pieces[i][j] == pieces[i + count][j]) {
+					while (i + count < state.width && state.pieces[i][j] == state.pieces[i + count][j]) {
 						++count;
-						if (count >= kLength) {
-							for (int k = 0; k < kLength; ++k)
+						if (count >= state.kLength) {
+							for (int k = 0; k < state.kLength; ++k)
 								ws.add(new Point(i + k, j));
-							return ws;
+							if (state.pieces[i][j] == 1)
+								++p1Count;
+							else if(state.pieces[i][j] == 2)
+								++p2Count;
+							ws.clear();
 						}
 					}
 				}
 
-				if (i - 1 < 0 || j - 1 < 0 || pieces[i - 1][j - 1] != pieces[i][j]) { // diagonal
+				if (i - 1 < 0 || j - 1 < 0 || state.pieces[i - 1][j - 1] != state.pieces[i][j]) { // diagonal
 																						// up,
 																						// (j-1<0)
 																						// needed
@@ -109,17 +116,21 @@ public class GroupAI extends CKPlayer {
 																						// avoid
 																						// OOB
 					int count = 1;
-					while (i + count < width && j + count < height && pieces[i][j] == pieces[i + count][j + count]) {
+					while (i + count < state.width && j + count < state.height && state.pieces[i][j] == state.pieces[i + count][j + count]) {
 						++count;
-						if (count >= kLength) {
-							for (int k = 0; k < kLength; ++k)
+						if (count >= state.kLength) {
+							for (int k = 0; k < state.kLength; ++k)
 								ws.add(new Point(i + k, j + k));
-							return ws;
+							if (state.pieces[i][j] == 1)
+								++p1Count;
+							else if(state.pieces[i][j] == 2)
+								++p2Count;
+							ws.clear();
 						}
 					}
 				}
 
-				if (i - 1 < 0 || j + 1 >= height || pieces[i - 1][j + 1] != pieces[i][j]) { // diagonal
+				if (i - 1 < 0 || j + 1 >= state.height || state.pieces[i - 1][j + 1] != state.pieces[i][j]) { // diagonal
 																							// down,
 																							// (j+1>=height)
 																							// needed
@@ -127,30 +138,40 @@ public class GroupAI extends CKPlayer {
 																							// avoid
 																							// OOB
 					int count = 1;
-					while (i + count < width && j - count >= 0 && pieces[i][j] == pieces[i + count][j - count]) {
+					while (i + count < state.width && j - count >= 0 && state.pieces[i][j] == state.pieces[i + count][j - count]) {
 						++count;
-						if (count >= kLength) {
-							for (int k = 0; k < kLength; ++k)
+						if (count >= state.kLength) {
+							for (int k = 0; k < state.kLength; ++k)
 								ws.add(new Point(i + k, j - k));
-							return ws;
+							if (state.pieces[i][j] == 1)
+								++p1Count;
+							else if(state.pieces[i][j] == 2)
+								++p2Count;
+							ws.clear();
 						}
 					}
 				}
 
-				if (j - 1 < 0 || pieces[i][j - 1] != pieces[i][j]) { // vertical
+				if (j - 1 < 0 || state.pieces[i][j - 1] != state.pieces[i][j]) { // vertical
 					int count = 1;
-					while (j + count < height && pieces[i][j] == pieces[i][j + count]) {
+					while (j + count < state.height && state.pieces[i][j] == state.pieces[i][j + count]) {
 						++count;
-						if (count >= kLength) {
-							for (int k = 0; k < kLength; ++k)
+						if (count >= state.kLength) {
+							for (int k = 0; k < state.kLength; ++k)
 								ws.add(new Point(i, j + k));
-							return ws;
+							if (state.pieces[i][j] == 1)
+								++p1Count;
+							else if(state.pieces[i][j] == 2)
+								++p2Count;
+							ws.clear();
 						}
 					}
 				}
 			}
 		}
-		return ws;
+		result.add(p1Count);
+		result.add(p2Count);
+		return result;
 	}
 
 	@Override
