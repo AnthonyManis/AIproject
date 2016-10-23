@@ -24,11 +24,10 @@ public class GroupAI extends CKPlayer {
 	}
 
 	public int heuristic(BoardModel state){
-		List<Integer> ret = waysToWin(state);
-		if ( player == 1)
-			return ( ret.get(0) - ret.get(1));
-		else
-			return ( ret.get(1) - ret.get(0)); 
+		ArrayList<ArrayList<Integer>> ret = waysToWin(state);
+		int total = 0;
+
+		return total;
 	}
 
 	public byte nextPlayer(byte p) {
@@ -71,11 +70,16 @@ public class GroupAI extends CKPlayer {
 
 	// Returns the number of turns needed to win by each player for this board
 	// (player1, player2)
-	public List<Integer> waysToWin(BoardModel state) {
-		List<Integer> result = new ArrayList<Integer>();
+	public ArrayList<ArrayList<Integer>> waysToWin(BoardModel state) {
+		ArrayList<Integer> p1totals = new ArrayList<Integer>(state.kLength+1);
+		ArrayList<Integer> p2totals = new ArrayList<Integer>(state.kLength+1);
+		for (int i = 0 ; i <= state.kLength ; i++) {
+			p1totals.add(0);
+			p2totals.add(0);
+		}
+		ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
 		int p1total = 0;
 		int p2total = 0;
-
 		// Horizontal windows
 		for (int j = 0 ; j < state.height ; j++) {
 			int player1 = 0, player2 = 0;
@@ -92,9 +96,9 @@ public class GroupAI extends CKPlayer {
 				// Scoring
 				if ( windowSize == state.kLength ) {
 					if ( player1 == 0 )
-						p2total++;
+						p2totals.set(player2, player2);
 					if ( player2 == 0 )
-						p1total++;
+						p1totals.set(player1, player1);
 
 					// Adjust window
 					if ( state.getSpace(windowStart, j) == 1 )
@@ -124,9 +128,9 @@ public class GroupAI extends CKPlayer {
 				// Scoring
 				if ( windowSize == state.kLength ) {
 					if ( player1 == 0 )
-						p2total++;
+						p2totals.set(player2, player2);
 					if ( player2 == 0 )
-						p1total++;
+						p1totals.set(player1, player1);
 					
 					// Adjust window
 					if ( state.getSpace(i, windowStart) == 1 )
@@ -139,8 +143,8 @@ public class GroupAI extends CKPlayer {
 			}
 		}
 
-		result.add(p1total);
-		result.add(p2total);
+		result.add(p1totals);
+		result.add(p2totals);
 		return result;
 	}
 
