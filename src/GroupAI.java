@@ -1,13 +1,12 @@
 import connectK.CKPlayer;
 import connectK.BoardModel;
 import java.awt.Point;
-import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
 
 public class GroupAI extends CKPlayer {
 
-    	private Point bestPoint = new Point(); // (i, j)
+    private Point bestPoint = new Point(); // (i, j)
 
 	public GroupAI(byte player, BoardModel state) {
 		super(player, state);
@@ -16,20 +15,17 @@ public class GroupAI extends CKPlayer {
 
 	@Override
 	public Point getMove(BoardModel state) {
-		Random randomGenerator = new Random();
 
 		while (state.hasMovesLeft()){
-
-			int random_i = randomGenerator.nextInt(state.getWidth());
-			int random_j = randomGenerator.nextInt(state.getHeight());
-			if(state.getSpace(random_i, random_j) == 0)
-				return new Point(random_i,random_j);
+				search(state, 3, (byte) 1);
+				return new Point(bestPoint.x, bestPoint.y);
 		}
 		return null;
 	}
 
 	public int heuristic(BoardModel state){
-		return state.height;
+		List<Integer> ret = winningSpaces(state);
+		return ( ret.get(0) - ret.get(1));
 	}
 
 	public byte nextPlayer(byte p) {
