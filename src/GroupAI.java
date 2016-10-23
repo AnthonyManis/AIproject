@@ -24,7 +24,7 @@ public class GroupAI extends CKPlayer {
 	}
 
 	public int heuristic(BoardModel state){
-		List<Integer> ret = turnsToWin(state);
+		List<Integer> ret = waysToWin(state);
 		if ( player == 1)
 			return ( ret.get(0) - ret.get(1));
 		else
@@ -71,97 +71,76 @@ public class GroupAI extends CKPlayer {
 
 	// Returns the number of turns needed to win by each player for this board
 	// (player1, player2)
-	public List<Integer> turnsToWin(BoardModel state) {
+	public List<Integer> waysToWin(BoardModel state) {
 		List<Integer> result = new ArrayList<Integer>();
-		int p1best = 0;
-		int p2best = 0;
+		int p1total = 0;
+		int p2total = 0;
 
-		// Horizontal Window method, size size.kLength
+		// Horizontal windows
 		for (int j = 0 ; j < state.height ; j++) {
-			byte color = 0;
-			int spaces = 0;
-			int colorCount = 0;
-			int windowStart = 0;
+			int player1 = 0, player2 = 0;
+			int windowStart= 0, windowSize = 0;
 			for (int i = 0 ; i < state.width ; i++) {
-				if ( state.getSpace(i, j) == 0 ) {
-					spaces++;
-				}
-				// No color present or same color.
-				else if ( color == 0 || state.getSpace(i, j) == color) {
-					color = state.getSpace(i, j);
-					colorCount++;
-				}
-				// different color
-				else {
-					// Reset window AND count the new color
-					windowStart = i;
-					while (spaces-- > 0)
-						windowStart--;
-					color = state.getSpace(i, j); 
-					colorCount = 1;
-					spaces = 0;
-				}
-				// Scoring
-				if ( windowStart + state.kLength - 1 == i) {
-					if ( color == 1 )
-						p1best = Math.max(p1best, colorCount);
-					else
-						p2best = Math.max(p2best, colorCount);
+				if ( windowSize < state.kLength )
+					windowSize++;
 
-					// Adjust the window on a score
-					if ( state.getSpace(windowStart, j) == 0 )
-						spaces--;
-					else if ( state.getSpace(windowStart, j) == color )
-						colorCount--;
+				if ( state.getSpace(i, j) == 1 )
+					player1++;
+				else if ( state.getSpace(i, j) == 2)
+					player2++;
+				
+				// Scoring
+				if ( windowSize == state.kLength ) {
+					if ( player1 == 0 )
+						p2total++;
+					if ( player2 == 0 )
+						p1total++;
+
+					// Adjust window
+					if ( state.getSpace(windowStart, j) == 1 )
+						player1--;
+					else if ( state.getSpace(windowStart, j) == 2 )
+						player2--;
+					windowSize--;
 					windowStart++;
 				}
 			}
 		}
 
-
-		// Vertical Window method, size size.kLength
+		// Vertical windows
 		for (int i = 0 ; i < state.width ; i++) {
-			byte color = 0;
-			int spaces = 0;
-			int colorCount = 0;
-			int windowStart = 0;
+			int player1 = 0, player2 = 0;
+			int windowStart = 0, windowSize = 0;
 			for (int j = 0 ; j < state.height ; j++) {
-				if ( state.getSpace(i, j) == 0 ) {
-					spaces++;
+				if ( windowSize < state.kLength ) {
+					windowSize++;
 				}
-				// No color present or same color.
-				else if ( color == 0 || state.getSpace(i, j) == color) {
-					color = state.getSpace(i, j);
-					colorCount++;
-				}
-				// different color
-				else {
-					// Reset window AND count the new color
-					windowStart = j;
-					while (spaces-- > 0)
-						windowStart--;
-					color = state.getSpace(i, j); 
-					colorCount = 1;
-					spaces = 0;
-				}
-				// Scoring
-				if (windowStart + state.kLength - 1 == j) {
-					if ( color == 1 )
-						p1best = Math.max(p1best, colorCount);
-					else if ( color == 2 )
-						p2best = Math.max(p2best, colorCount);
 
-					// Adjust the window on a score
-					if ( state.getSpace(i, windowStart) == 0 )
-						spaces--;
-					else if ( state.getSpace(i, windowStart) == color )
-						colorCount--;
+				if ( state.getSpace(i, j) == 1 )
+					player1++;
+				else if ( state.getSpace(i, j) == 2 )
+					player2++;
+				
+				// Scoring
+				if ( windowSize == state.kLength ) {
+					if ( player1 == 0 )
+						p2total++;
+					if ( player2 == 0 )
+						p1total++;
+					
+					// Adjust window
+					if ( state.getSpace(i, windowStart) == 1 )
+						player1--;
+					if ( state.getSpace(i, windowStart) == 2 )
+						player2--;
+					windowSize--;
 					windowStart++;
 				}
 			}
 		}
-		result.add(p1best);
-		result.add(p2best);
+
+		result.add(p1total);
+		result.add(p2total);
 		return result;
 	}
 

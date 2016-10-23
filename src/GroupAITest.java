@@ -1,8 +1,6 @@
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,10 +15,10 @@ public class GroupAITest {
 	@Before
 	public void setUp() {
 		board = new BoardModel(10, 10, 4, false);
-//		board = board.placePiece(new Point(4,0), (byte) 1);
-//		board = board.placePiece(new Point(5,0), (byte) 1);
-//		board = board.placePiece(new Point(6,0), (byte) 1);
-		board = board.placePiece(new Point(7,0), (byte) 2);
+		board = board.placePiece(new Point(4,0), (byte) 1);
+		board = board.placePiece(new Point(5,0), (byte) 1);
+		board = board.placePiece(new Point(6,0), (byte) 1);
+		board = board.placePiece(new Point(7,0), (byte) 1);
 		board = board.placePiece(new Point(8,0), (byte) 1);
 		board = board.placePiece(new Point(9,0), (byte) 1);
 		
@@ -37,11 +35,9 @@ public class GroupAITest {
 
 	@Test
 	public void winningSpacesTest() {
-		List<Integer> f = new ArrayList<Integer>();
-		f.add(4);
-		f.add(3);
-		System.out.println(ai.turnsToWin(board));
-		assertEquals(f, ai.turnsToWin(board));
+
+		System.out.println(ai.waysToWin(board));
+		assertTrue(ai.waysToWin(board).get(0) < ai.waysToWin(board).get(1));
 	}
 
 }
