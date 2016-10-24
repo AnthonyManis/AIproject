@@ -56,12 +56,16 @@ public class GroupAI extends CKPlayer {
 				}
 			}
 			else {
-
+				if ( player2biggest <= player1biggest ) {
+					player1total += ret.get(0).get(player1biggest);
+				}
+				else {
+					player2total += ret.get(0).get(player1biggest);
+				}
 			}
-
 		}
 
-
+		total = player1total - player2total;
 		// player field in the method calling search aka US
 		if (player == 1) 
 			return total;
