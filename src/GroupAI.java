@@ -25,8 +25,16 @@ public class GroupAI extends CKPlayer {
 
 	public int heuristic(BoardModel state){
 		ArrayList<ArrayList<Integer>> ret = waysToWin(state);
-		int total = 0;
-
+		int total = 0, player1total = 0, player2total = 0;
+		for (int i = 0 ; i <= state.kLength ; i++) {
+			player1total += ret.get(0).get(i) * i;
+			player2total += ret.get(1).get(2) * i;
+		}
+		if ( player == 1 )
+			total = player1total - player2total;
+		else
+			total = player2total - player1total;
+		
 		return total;
 	}
 
