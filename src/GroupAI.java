@@ -78,8 +78,6 @@ public class GroupAI extends CKPlayer {
 			p2totals.add(0);
 		}
 		ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
-		int p1total = 0;
-		int p2total = 0;
 		// Horizontal windows
 		for (int j = 0 ; j < state.height ; j++) {
 			int player1 = 0, player2 = 0;
@@ -95,10 +93,14 @@ public class GroupAI extends CKPlayer {
 				
 				// Scoring
 				if ( windowSize == state.kLength ) {
-					if ( player1 == 0 )
-						p2totals.set(player2, player2);
-					if ( player2 == 0 )
-						p1totals.set(player1, player1);
+					if ( player1 == 0 ) {
+						int t = p2totals.get(player2) + 1;
+						p2totals.set(player2, t);
+					}						
+					if ( player2 == 0 ) {
+						int t = p1totals.get(player1) + 1;
+						p1totals.set(player1, t);
+					}
 
 					// Adjust window
 					if ( state.getSpace(windowStart, j) == 1 )
@@ -127,10 +129,14 @@ public class GroupAI extends CKPlayer {
 				
 				// Scoring
 				if ( windowSize == state.kLength ) {
-					if ( player1 == 0 )
-						p2totals.set(player2, player2);
-					if ( player2 == 0 )
-						p1totals.set(player1, player1);
+					if ( player1 == 0 ) {
+						int t = p2totals.get(player2) + 1;
+						p2totals.set(player2, t);
+					}						
+					if ( player2 == 0 ) {
+						int t = p1totals.get(player1) + 1;
+						p1totals.set(player1, t);
+					}
 					
 					// Adjust window
 					if ( state.getSpace(i, windowStart) == 1 )
