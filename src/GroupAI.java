@@ -251,7 +251,7 @@ public class GroupAI extends CKPlayer {
 			for (int i = 0 ; i < state.width ; i++) {
 
 				// Skipping a lot of stuff that we don't need
-				if ( i != 0 && j != 0 )
+				if ( i != 0 && j != state.height-1 )
 					break;
 
 				int count = 0;
