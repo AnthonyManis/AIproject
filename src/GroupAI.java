@@ -23,19 +23,34 @@ public class GroupAI extends CKPlayer {
 		return null;
 	}
 
+	// Only use heuristic on boards where it is the opponen's turn to play.
 	public int heuristic(BoardModel state){
 		ArrayList<ArrayList<Integer>> ret = waysToWin(state);
 		int total = 0, player1total = 0, player2total = 0;
-		for (int i = 0 ; i <= state.kLength ; i++) {
-			player1total += ret.get(0).get(i) * i;
-			player2total += ret.get(1).get(2) * i;
-		}
-		if ( player == 1 )
-			total = player1total - player2total;
-		else
-			total = player2total - player1total;
+		int player1biggest = 0, player2biggest = 0;
+		int k = state.kLength;
 		
-		return total;
+		// Player 1 has won on this board, or plays next and wins.
+		if ( ret.get(0).get(k) > 0 || (player == 2 && ret.get(0).get(k-1) > 0) ){
+			player1total = 1000000;
+		}
+		// Player 2 has won on this board, or plays next and wins.
+		else if ( ret.get(1).get(k) > 0 || (player == 1 && ret.get(1).get(k-1) > 0) ){
+			player2total = 1000000;
+		}
+		else {
+			for (int i = 0 ; i < k-1 ; i++) {
+				
+			}
+			
+		}
+		
+
+		// player field in the method calling search aka US
+		if (player == 1) 
+			return total;
+		else
+			return 0 - total;
 	}
 
 	public byte nextPlayer(byte p) {
@@ -55,7 +70,7 @@ public class GroupAI extends CKPlayer {
 				if (state.getSpace(i, j) == 0) {
 					Point p = new Point(i,j);
 					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move));
-					if ( move == 1 ) {
+					if ( move == player ) {
 						if ( value > bestValue){
 							bestValue = value;
 							bestPoint.x = i;
