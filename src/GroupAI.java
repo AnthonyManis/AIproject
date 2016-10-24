@@ -85,11 +85,17 @@ public class GroupAI extends CKPlayer {
 		}
 
 		int bestValue = 0;
+		boolean isBVSet = false;
 		for ( int i  = 0 ; i  < state.getWidth() ; i++) {
 			for (int j = 0 ; j < state.getHeight(); j++ ) {
 				if (state.getSpace(i, j) == 0) {
 					Point p = new Point(i,j);
 					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move));
+					if ( isBVSet == false ) {
+						bestValue = value;
+						bestPoint.x = i;
+						bestPoint.y = j;
+					}
 					if ( move == player ) {
 						if ( value > bestValue){
 							bestValue = value;
