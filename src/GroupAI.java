@@ -95,6 +95,7 @@ public class GroupAI extends CKPlayer {
 						bestValue = value;
 						bestPoint.x = i;
 						bestPoint.y = j;
+						isBVSet = true;
 					}
 					if ( move == player ) {
 						if ( value > bestValue){
