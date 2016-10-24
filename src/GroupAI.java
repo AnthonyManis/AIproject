@@ -23,7 +23,7 @@ public class GroupAI extends CKPlayer {
 		return null;
 	}
 
-	// Only use heuristic on boards where it is the opponen's turn to play.
+	// Only use heuristic on boards where it is the opponent's turn to play.
 	public int heuristic(BoardModel state){
 		ArrayList<ArrayList<Integer>> ret = waysToWin(state);
 		int total = 0, player1total = 0, player2total = 0;
@@ -39,10 +39,13 @@ public class GroupAI extends CKPlayer {
 			player2total = 1000000;
 		}
 		else {
-			for (int i = 0 ; i < k-1 ; i++) {
-				
+			// Find how close each player is to winning.
+			for (int i = 1 ; i < k-1 ; i++) {
+				if ( ret.get(0).get(i) > 0 )
+					player1biggest = i;
+				if ( ret.get(1).get(i) > 0 )
+					player2biggest = i;
 			}
-			
 		}
 		
 
