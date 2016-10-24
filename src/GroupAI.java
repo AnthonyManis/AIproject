@@ -29,7 +29,7 @@ public class GroupAI extends CKPlayer {
 		int total = 0, player1total = 0, player2total = 0;
 		int player1biggest = 0, player2biggest = 0;
 		int k = state.kLength;
-		
+
 		// Player 1 has won on this board, or plays next and wins.
 		if ( ret.get(0).get(k) > 0 || (player == 2 && ret.get(0).get(k-1) > 0) ){
 			player1total = 1000000;
@@ -46,8 +46,21 @@ public class GroupAI extends CKPlayer {
 				if ( ret.get(1).get(i) > 0 )
 					player2biggest = i;
 			}
+
+			if ( player == 1 ) {
+				if ( player1biggest <= player2biggest ){
+					player2total += ret.get(1).get(player2biggest);
+				}
+				else {
+					player1total += ret.get(0).get(player1biggest);
+				}
+			}
+			else {
+
+			}
+
 		}
-		
+
 
 		// player field in the method calling search aka US
 		if (player == 1) 
@@ -116,7 +129,7 @@ public class GroupAI extends CKPlayer {
 					player1++;
 				else if ( state.getSpace(i, j) == 2)
 					player2++;
-				
+
 				// Scoring
 				if ( windowSize == state.kLength ) {
 					if ( player1 == 0 ) {
@@ -152,7 +165,7 @@ public class GroupAI extends CKPlayer {
 					player1++;
 				else if ( state.getSpace(i, j) == 2 )
 					player2++;
-				
+
 				// Scoring
 				if ( windowSize == state.kLength ) {
 					if ( player1 == 0 ) {
@@ -163,7 +176,7 @@ public class GroupAI extends CKPlayer {
 						int t = p1totals.get(player1) + 1;
 						p1totals.set(player1, t);
 					}
-					
+
 					// Adjust window
 					if ( state.getSpace(i, windowStart) == 1 )
 						player1--;
