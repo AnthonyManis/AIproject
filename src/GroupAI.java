@@ -204,7 +204,14 @@ public class GroupAI extends CKPlayer {
 					break;
 
 				int count = 0;
+				windowSize = 0;
+				windowStart = 0;
+				player1 = 0;
+				player2 = 0;
 				while (i + count < state.width && j + count < state.height ) {
+					if ( windowSize == state.kLength )
+						windowStart++;
+
 					if ( windowSize < state.kLength) {
 						windowSize++;
 					}
@@ -231,7 +238,57 @@ public class GroupAI extends CKPlayer {
 							player1--;
 						if ( state.getSpace(i + windowStart, j + windowStart) == 2 )
 							player2--;
+					}
+					count++;
+				}
+			}
+		}
+
+		// Diagonal down windows
+		for (int j = 0 ; j < state.height ; j++) {
+			int player1 = 0, player2 = 0;
+			int windowSize = 0, windowStart = 0;
+			for (int i = 0 ; i < state.width ; i++) {
+
+				// Skipping a lot of stuff that we don't need
+				if ( i != 0 && j != 0 )
+					break;
+
+				int count = 0;
+				windowSize = 0;
+				windowStart = 0;
+				player1 = 0;
+				player2 = 0;
+				while (i + count < state.width && j - count >=0) {
+					if ( windowSize == state.kLength )
 						windowStart++;
+
+					if ( windowSize < state.kLength) {
+						windowSize++;
+					}
+
+					if ( state.getSpace(i + count, j - count) == 1 )
+						player1++;
+					else if ( state.getSpace(i + count, j - count) == 2 )
+						player2++;
+
+
+					// Scoring
+					if ( windowSize == state.kLength ) {
+						if ( player1 == 0 ) {
+							int t = p2totals.get(player2) + 1;
+							p2totals.set(player2, t);
+						}						
+						if ( player2 == 0 ) {
+							int t = p1totals.get(player1) + 1;
+							p1totals.set(player1, t);
+						}
+
+						// Adjust window
+						if ( state.getSpace(i + windowStart, j - windowStart) == 1 )
+							player1--;
+						if ( state.getSpace(i + windowStart, j - windowStart) == 2 )
+							player2--;
 					}
 					count++;
 				}
