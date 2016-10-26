@@ -48,19 +48,19 @@ public class GroupAI extends CKPlayer {
 			}
 
 			if ( player == 1 ) {
-				if ( player1biggest <= player2biggest ){
-					player2total += ret.get(1).get(player2biggest);
+				if ( player1biggest > player2biggest ){
+					player1total += ret.get(0).get(player1biggest);
 				}
 				else {
-					player1total += ret.get(0).get(player1biggest);
+					player2total += ret.get(1).get(player2biggest);
 				}
 			}
 			else {
-				if ( player2biggest <= player1biggest ) {
-					player1total += ret.get(0).get(player1biggest);
+				if ( player2biggest > player1biggest ) {
+					player2total += ret.get(0).get(player2biggest);
 				}
 				else {
-					player2total += ret.get(0).get(player2biggest);
+					player1total += ret.get(0).get(player1biggest);
 				}
 			}
 		}
@@ -85,17 +85,27 @@ public class GroupAI extends CKPlayer {
 		}
 
 		int bestValue = 0;
-		boolean isBVSet = false;
+		boolean validMoveFound = false;
+		
+		// Check to see if this is a winning board
+		int winner = state.winner();
+		if ( winner == player ) {
+			return 1000000;
+		}
+		else if ( winner == nextPlayer(player) ){
+			return -1000000;
+		}
+		
 		for ( int i  = 0 ; i  < state.getWidth() ; i++) {
 			for (int j = 0 ; j < state.getHeight(); j++ ) {
 				if (state.getSpace(i, j) == 0) {
 					Point p = new Point(i,j);
 					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move));
-					if ( isBVSet == false ) {
+					if ( validMoveFound == false ) {
 						bestValue = value;
 						bestPoint.x = i;
 						bestPoint.y = j;
-						isBVSet = true;
+						validMoveFound = true;
 					}
 					if ( move == player ) {
 						if ( value > bestValue){
