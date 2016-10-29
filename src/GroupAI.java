@@ -17,7 +17,7 @@ public class GroupAI extends CKPlayer {
 	public Point getMove(BoardModel state) {
 
 		while (state.hasMovesLeft()){
-			System.out.println("best value: " + search(state, 3, player) );
+			search(state, 3, player);
 			return new Point(bestPoint.x, bestPoint.y);
 		}
 		return null;
@@ -32,11 +32,11 @@ public class GroupAI extends CKPlayer {
 
 		// Player 1 has won on this board, or plays next and wins.
 		if ( ret.get(0).get(k) > 0 || (player == 2 && ret.get(0).get(k-1) > 0) ){
-			player1total = Integer.MAX_VALUE;
+			player1total = 1000000;
 		}
 		// Player 2 has won on this board, or plays next and wins.
 		else if ( ret.get(1).get(k) > 0 || (player == 1 && ret.get(1).get(k-1) > 0) ){
-			player2total = Integer.MIN_VALUE;
+			player2total = 1000000;
 		}
 		else {
 			// Find how close each player is to winning.
@@ -77,9 +77,8 @@ public class GroupAI extends CKPlayer {
 		return (byte) p == (byte) 1 ? (byte) 2 : (byte) 1;
 	}
 
-	public int search(BoardModel state, int depth, byte move) { return search(state, depth, move, Integer.MIN_VALUE, Integer.MAX_VALUE); }
 	// move can be 1 or 2
-	public int search(BoardModel state, int depth, byte move, int alpha, int beta) {
+	public int search(BoardModel state, int depth, byte move) {
 		// base case
 		if ( depth == 0 ) {
 			return heuristic(state);
@@ -91,42 +90,33 @@ public class GroupAI extends CKPlayer {
 		// Check to see if this is a winning board
 		int winner = state.winner();
 		if ( winner == player ) {
-			return Integer.MAX_VALUE;
+			return 1000000;
 		}
 		else if ( winner == nextPlayer(player) ){
-			return Integer.MIN_VALUE;
+			return -1000000;
 		}
 		
 		for ( int i  = 0 ; i  < state.getWidth() ; i++) {
-			if ( alpha >= beta ) {
-				break;
-			}
 			for (int j = 0 ; j < state.getHeight(); j++ ) {
 				if (state.getSpace(i, j) == 0) {
 					Point p = new Point(i,j);
-					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta);
+					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move));
 					if ( validMoveFound == false ) {
-						if ( move == player )
-							alpha = bestValue = value;
-						else
-							beta = bestValue = value;
-						
+						bestValue = value;
 						bestPoint.x = i;
 						bestPoint.y = j;
 						validMoveFound = true;
-					}		
-					// MAX
+					}
 					if ( move == player ) {
-						if ( value > bestValue) {
-							alpha = bestValue = value;
+						if ( value > bestValue){
+							bestValue = value;
 							bestPoint.x = i;
 							bestPoint.y = j;
 						}
 					}
-					// MIN
 					else {
 						if ( value < bestValue) {
-							beta = bestValue = value;
+							bestValue = value;
 							bestPoint.x = i;
 							bestPoint.y = j;
 						}
