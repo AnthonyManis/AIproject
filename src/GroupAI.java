@@ -78,15 +78,8 @@ public class GroupAI extends CKPlayer {
 	}
 
 	// move can be 1 or 2
-	public int search(BoardModel state, int depth, byte move) {
-		// base case
-		if ( depth == 0 ) {
-			return heuristic(state);
-		}
-
-		int bestValue = 0;
-		boolean validMoveFound = false;
-		
+	public int search(BoardModel state, int depth, byte move) { return search(state,depth,move, Integer.MIN_VALUE, Integer.MAX_VALUE); }
+	public int search(BoardModel state, int depth, byte move, int alpha, int beta) {
 		// Check to see if this is a winning board
 		int winner = state.winner();
 		if ( winner == player ) {
@@ -96,6 +89,13 @@ public class GroupAI extends CKPlayer {
 			return -1000000;
 		}
 		
+		// base case
+		if ( depth == 0 ) {
+			return heuristic(state);
+		}
+
+		int bestValue = 0;
+		boolean validMoveFound = false;		
 		for ( int i  = 0 ; i  < state.getWidth() ; i++) {
 			for (int j = 0 ; j < state.getHeight(); j++ ) {
 				if (state.getSpace(i, j) == 0) {
@@ -113,6 +113,7 @@ public class GroupAI extends CKPlayer {
 							bestPoint.x = i;
 							bestPoint.y = j;
 						}
+						alpha = Math.max(alpha, bestValue);
 					}
 					else {
 						if ( value < bestValue) {
@@ -120,9 +121,11 @@ public class GroupAI extends CKPlayer {
 							bestPoint.x = i;
 							bestPoint.y = j;
 						}
+						beta = Math.min(beta, bestValue);
 					}
 				}
-
+				if ( alpha >= beta )
+					return bestValue;
 			}
 		}
 		return bestValue;
