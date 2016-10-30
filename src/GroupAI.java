@@ -17,7 +17,7 @@ public class GroupAI extends CKPlayer {
 	public Point getMove(BoardModel state) {
 
 		while (state.hasMovesLeft()){
-			search(state, 3, player);
+			System.out.println("best " + search(state, 3, player));
 			return new Point(bestPoint.x, bestPoint.y);
 		}
 		return null;
