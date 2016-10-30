@@ -31,11 +31,11 @@ public class GroupAI extends CKPlayer {
 		int k = state.kLength;
 
 		// Player 1 has won on this board, or plays next and wins.
-		if ( ret.get(0).get(k) > 0 ){
+		if ( ret.get(0).get(k) > 0 || (player == 2 && ret.get(0).get(k-1) > 0) ){
 			player1total = 1000000;
 		}
 		// Player 2 has won on this board, or plays next and wins.
-		else if ( ret.get(1).get(k) > 0 ) {
+		else if ( ret.get(1).get(k) > 0 || (player == 1 && ret.get(1).get(k-1) > 0) ){
 			player2total = 1000000;
 		}
 		else {
