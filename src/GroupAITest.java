@@ -14,22 +14,15 @@ public class GroupAITest {
 	
 	@Before
 	public void setUp() {
-		board = new BoardModel(10, 10, 4, false);
-//		board = board.placePiece(new Point(4,0), (byte) 1);
-//		board = board.placePiece(new Point(5,0), (byte) 1);
-//		board = board.placePiece(new Point(6,0), (byte) 1);
-		board = board.placePiece(new Point(7,0), (byte) 1);
-		board = board.placePiece(new Point(8,0), (byte) 1);
-		board = board.placePiece(new Point(9,0), (byte) 1);
+		board = new BoardModel(9, 7, 5, false);
+		board = board.placePiece(new Point(3,2), (byte) 1);
+//		board = board.placePiece(new Point(3,6), (byte) 1);
+//		board = board.placePiece(new Point(3,4), (byte) 1);
+//		board = board.placePiece(new Point(3,3), (byte) 1);
+//		board = board.placePiece(new Point(3,5), (byte) 1);
 		
-		board = board.placePiece(new Point(9,9), (byte) 2);
-		board = board.placePiece(new Point(8,9), (byte) 2);
-//		board = board.placePiece(new Point(9,7), (byte) 2);
-//		board = board.placePiece(new Point(8,8), (byte) 2);
-//		board = board.placePiece(new Point(7,7), (byte) 2);
-//		board = board.placePiece(new Point(6,6), (byte) 2);
 		
-		ai = new GroupAI((byte) 1, board);
+		ai = new GroupAI((byte) 2, board);
 	}
 
 	@Test
