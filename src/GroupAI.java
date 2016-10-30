@@ -17,44 +17,60 @@ public class GroupAI extends CKPlayer {
 	public Point getMove(BoardModel state) {
 
 		while (state.hasMovesLeft()){
-			System.out.println("best value: " + search(state, 3, player));
+			search(state, 3, player);
 			return new Point(bestPoint.x, bestPoint.y);
 		}
 		return null;
 	}
 
 	// Only use heuristic on boards where it is the opponent's turn to play.
-	public int heuristic(BoardModel state, byte move){
+	public int heuristic(BoardModel state){
 		ArrayList<ArrayList<Integer>> ret = waysToWin(state);
-		int player1score = 0, player2score = 0, total = 0;
-		
-		// First check to see if this move enables a win
-		// If the player who moves next also has k-1 in a row
-		// on this board, they win on their turn
-		if ( move == 1 && ret.get(0).get(state.kLength - 1) > 0 ) {
-			return Integer.MAX_VALUE;
+		int total = 0, player1total = 0, player2total = 0;
+		int player1biggest = 0, player2biggest = 0;
+		int k = state.kLength;
+
+		// Player 1 has won on this board, or plays next and wins.
+		if ( ret.get(0).get(k) > 0 || (player == 2 && ret.get(0).get(k-1) > 0) ){
+			player1total = 1000000;
 		}
-		if ( move == 2 && ret.get(1).get(state.kLength - 1) > 0 ) {
-			return Integer.MIN_VALUE;
-		}
-		
-		// Give each player a score for the number of
-		// runs they have in each category of 1 to k-1
-		// longer runs weighted more
-		for (int i = 1 ; i < state.kLength ; i++ ) {
-			int weight = (int) Math.pow(i, 5);
-			player1score = ret.get(0).get(i);
-			player2score = ret.get(1).get(i);
-			total += (player1score - player2score) * weight;
-		}
-		
-		
-		if (player == 1) {
-			return total;
+		// Player 2 has won on this board, or plays next and wins.
+		else if ( ret.get(1).get(k) > 0 || (player == 1 && ret.get(1).get(k-1) > 0) ){
+			player2total = 1000000;
 		}
 		else {
-			return 0 - total;
+			// Find how close each player is to winning.
+			for (int i = 1 ; i < k-1 ; i++) {
+				if ( ret.get(0).get(i) > 0 )
+					player1biggest = i;
+				if ( ret.get(1).get(i) > 0 )
+					player2biggest = i;
+			}
+
+			if ( player == 1 ) {
+				if ( player1biggest > player2biggest ){
+					player1total += ret.get(0).get(player1biggest);
+				}
+				else {
+					player2total += ret.get(1).get(player2biggest);
+				}
+			}
+			else {
+				if ( player2biggest > player1biggest ) {
+					player2total += ret.get(0).get(player2biggest);
+				}
+				else {
+					player1total += ret.get(0).get(player1biggest);
+				}
+			}
 		}
+
+		total = player1total - player2total;
+		// player field in the method calling search aka US
+		if (player == 1) 
+			return total;
+		else
+			return 0 - total;
 	}
 
 	public byte nextPlayer(byte p) {
@@ -63,22 +79,22 @@ public class GroupAI extends CKPlayer {
 
 	// move can be 1 or 2
 	public int search(BoardModel state, int depth, byte move) {
-		// Check to see if this is a winning board
-		int winner = state.winner();
-		if ( winner == player ) {
-			return Integer.MAX_VALUE;
-		}
-		else if ( winner == nextPlayer(player) ){
-			return Integer.MIN_VALUE;
-		}
-		
 		// base case
 		if ( depth == 0 ) {
-			return heuristic(state, move);
+			return heuristic(state);
 		}
 
 		int bestValue = 0;
 		boolean validMoveFound = false;
+		
+		// Check to see if this is a winning board
+		int winner = state.winner();
+		if ( winner == player ) {
+			return 1000000;
+		}
+		else if ( winner == nextPlayer(player) ){
+			return -1000000;
+		}
 		
 		for ( int i  = 0 ; i  < state.getWidth() ; i++) {
 			for (int j = 0 ; j < state.getHeight(); j++ ) {

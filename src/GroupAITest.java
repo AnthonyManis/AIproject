@@ -14,27 +14,20 @@ public class GroupAITest {
 	
 	@Before
 	public void setUp() {
-		board = new BoardModel(9, 7, 5, false);
-		board = board.placePiece(new Point(4,3), (byte) 2);
-		board = board.placePiece(new Point(2,4), (byte) 2);
-		board = board.placePiece(new Point(2,2), (byte) 2);
-		board = board.placePiece(new Point(3,5), (byte) 2);
-		board = board.placePiece(new Point(1,3), (byte) 2);
-		board = board.placePiece(new Point(1,4), (byte) 2);
-		board = board.placePiece(new Point(3,0), (byte) 2);
-		board = board.placePiece(new Point(1,2), (byte) 2);
-//		board = board.placePiece(new Point(1,5), (byte) 2);
-	
-		board = board.placePiece(new Point(4,2), (byte) 1);
-		board = board.placePiece(new Point(3,3), (byte) 1);
-		board = board.placePiece(new Point(3,2), (byte) 1);
-		board = board.placePiece(new Point(3,4), (byte) 1);
-		board = board.placePiece(new Point(2,3), (byte) 1);
-		board = board.placePiece(new Point(5,3), (byte) 1);
-		board = board.placePiece(new Point(3,1), (byte) 1);
-		board = board.placePiece(new Point(4,5), (byte) 1);
-		board = board.placePiece(new Point(4,6), (byte) 1);
-//		board = board.placePiece(new Point(1,1), (byte) 1);
+		board = new BoardModel(10, 10, 4, false);
+//		board = board.placePiece(new Point(4,0), (byte) 1);
+//		board = board.placePiece(new Point(5,0), (byte) 1);
+//		board = board.placePiece(new Point(6,0), (byte) 1);
+		board = board.placePiece(new Point(7,0), (byte) 1);
+		board = board.placePiece(new Point(8,0), (byte) 1);
+		board = board.placePiece(new Point(9,0), (byte) 1);
+		
+		board = board.placePiece(new Point(9,9), (byte) 2);
+		board = board.placePiece(new Point(8,9), (byte) 2);
+//		board = board.placePiece(new Point(9,7), (byte) 2);
+//		board = board.placePiece(new Point(8,8), (byte) 2);
+//		board = board.placePiece(new Point(7,7), (byte) 2);
+//		board = board.placePiece(new Point(6,6), (byte) 2);
 		
 		ai = new GroupAI((byte) 1, board);
 	}
@@ -44,7 +37,7 @@ public class GroupAITest {
 
 		System.out.println(board.toString());
 		System.out.println(ai.waysToWin(board));
-		System.out.println(ai.heuristic(board, (byte) 2));
+		System.out.println(ai.heuristic(board));
 //		assertTrue(ai.waysToWin(board).get(0) < ai.waysToWin(board).get(1));
 	}
 
