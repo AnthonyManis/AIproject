@@ -30,31 +30,23 @@ public class GroupAI extends CKPlayer {
 		int player1biggest = 0, player2biggest = 0;
 		int k = state.kLength;
 
-{
-			// Find how close each player is to winning.
-			for (int i = 1 ; i < k-1 ; i++) {
-				if ( ret.get(0).get(i) > 0 )
-					player1biggest = i;
-				if ( ret.get(1).get(i) > 0 )
-					player2biggest = i;
-			}
 
-			if ( player == 1 ) {
-				if ( player1biggest > player2biggest ){
-					player1total += ret.get(0).get(player1biggest);
-				}
-				else {
-					player2total += ret.get(1).get(player2biggest);
-				}
-			}
-			else {
-				if ( player2biggest > player1biggest ) {
-					player2total += ret.get(0).get(player2biggest);
-				}
-				else {
-					player1total += ret.get(0).get(player1biggest);
-				}
-			}
+		// Find how close each player is to winning.
+		for (int i = 1 ; i < k-1 ; i++) {
+			if ( ret.get(0).get(i) > 0 )
+				player1biggest = i;
+			if ( ret.get(1).get(i) > 0 )
+				player2biggest = i;
+		}
+		
+		// check for a little trick that sometimes the good AI uses
+		
+
+		if ( player1biggest > player2biggest ) {
+			player1total += ret.get(0).get(player1biggest);
+		}
+		else {
+			player2total += ret.get(1).get(player2biggest);
 		}
 
 		total = player1total - player2total;
@@ -79,7 +71,7 @@ public class GroupAI extends CKPlayer {
 		else if ( winner == nextPlayer(player) ){
 			return -1000000;
 		}
-		
+
 		// base case
 		if ( depth == 0 ) {
 			return heuristic(state);
@@ -87,7 +79,7 @@ public class GroupAI extends CKPlayer {
 
 		int bestValue = 0;
 		boolean validMoveFound = false;
-		
+
 		for ( int i  = 0 ; i  < state.getWidth() ; i++) {
 			for (int j = 0 ; j < state.getHeight(); j++ ) {
 				if (state.getSpace(i, j) == 0) {
