@@ -100,7 +100,7 @@ public class GroupAI extends CKPlayer {
 			for (int j = 0 ; j < state.getHeight(); j++ ) {
 				if (state.getSpace(i, j) == 0) {
 					Point p = new Point(i,j);
-					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move));
+					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta);
 					if ( validMoveFound == false ) {
 						bestValue = value;
 						bestPoint.x = i;
@@ -124,8 +124,10 @@ public class GroupAI extends CKPlayer {
 						beta = Math.min(beta, bestValue);
 					}
 				}
-				if ( alpha >= beta )
+				if ( alpha >= beta ) {
+					System.out.println(alpha + ", " + beta);
 					return bestValue;
+				}
 			}
 		}
 		return bestValue;
