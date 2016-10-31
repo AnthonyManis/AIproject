@@ -6,11 +6,13 @@ import java.util.ArrayList;
 
 
 public class GroupAI extends CKPlayer {
-	
-	final int WIN_VALUE = Integer.MAX_VALUE - 1;
-	final int DRAW_VALUE = Integer.MAX_VALUE - 2;
-	final int LOSE_VALUE = Integer.MIN_VALUE + 1;
-	
+
+	final int WIN_VALUE = (int) 1.0e9;
+	final int DRAW_VALUE = (int) 1.0e9 - 1;
+	final int LOSE_VALUE = (int) -1.0e9;
+	final byte PLAYER1 = 1;
+	final byte PLAYER2 = 2;
+
 	public Point bestPoint = new Point(); // (i, j)
 
 	public GroupAI(byte player, BoardModel state) {
@@ -30,20 +32,29 @@ public class GroupAI extends CKPlayer {
 		return null;
 	}
 
-	
+
 	public int heuristic(BoardModel state) {
 		int result = 0;
 		int winner = state.winner();
-		if ( winner == 2 ) {
-			return WIN_VALUE;
+		if ( winner != -1 ) {
+			if ( winner == 1 ) {
+				result =  WIN_VALUE;
+			}
+			if ( winner == 2) {
+				result = LOSE_VALUE;
+			}
+			if ( winner == 0) {
+				result = DRAW_VALUE;
+			}
+			if ( player == PLAYER2 ) {
+				result *= -1;
+			}
+			return result;
 		}
-		if ( winner == 1) {
-			return LOSE_VALUE;
-		}
-		if ( winner == 0) {
-			return DRAW_VALUE;
-		}
-		
+
+
+
+
 		ArrayList<ArrayList<Integer>> cont = waysToWin(state);
 		int player1total = 0, player2total = 0;
 		for ( int i = 1 ; i < state.kLength ; i++ ) {
@@ -51,11 +62,14 @@ public class GroupAI extends CKPlayer {
 			player1total += cont.get(1).get(i) * weight;
 			player2total += cont.get(2).get(i) * weight;
 		}
-		
+
 		result = player1total - player2total;
-		
+		if (player == PLAYER2) {
+			result *= -1;
+		}
 		return result;
 	}
+
 
 	public byte nextPlayer(byte p) {
 		return (byte) p == (byte) 1 ? (byte) 2 : (byte) 1;
@@ -78,7 +92,7 @@ public class GroupAI extends CKPlayer {
 				}
 			}
 		}
-		
+
 		return v;
 	}
 
@@ -86,12 +100,12 @@ public class GroupAI extends CKPlayer {
 		if ( depth == 0 ) {
 			return heuristic(state);
 		}
-		
+
 		int h = heuristic(state);
 		if ( h == DRAW_VALUE || h == WIN_VALUE || h == LOSE_VALUE ) {
 			return h;
 		}
-		
+
 		int v = Integer.MIN_VALUE;
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
@@ -108,12 +122,12 @@ public class GroupAI extends CKPlayer {
 		if ( depth == 0 ) {
 			return heuristic(state);
 		}
-		
+
 		int h = heuristic(state);
 		if ( h == DRAW_VALUE || h == WIN_VALUE || h == LOSE_VALUE ) {
 			return h;
 		}
-		
+
 		int v = Integer.MAX_VALUE;
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
@@ -126,7 +140,7 @@ public class GroupAI extends CKPlayer {
 		return v;
 	}
 
-	
+
 
 	// Returns the number of turns needed to win by each player for this board
 	// (player1, player2)

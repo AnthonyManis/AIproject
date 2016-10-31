@@ -45,7 +45,7 @@ public class GroupAITest {
 
 		System.out.println(board.toString());
 		System.out.println(ai.waysToWin(board));
-//		System.out.println(ai.heuristic(board));
+		System.out.println(ai.heuristic(board));
 //		System.out.println(ai.search(board, 3, (byte)2));
 //		System.out.println(ai.bestPoint.x + ", " + ai.bestPoint.y);
 //		assertTrue(ai.waysToWin(board).get(0) < ai.waysToWin(board).get(1));
