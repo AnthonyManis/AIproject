@@ -4,13 +4,20 @@ import java.awt.Point;
 import java.util.List;
 import java.util.ArrayList;
 
-public class GroupAI extends CKPlayer {
 
-	private Point bestPoint = new Point(); // (i, j)
+public class GroupAI extends CKPlayer {
+	
+	final int WIN_VALUE = Integer.MAX_VALUE - 1;
+	final int DRAW_VALUE = Integer.MAX_VALUE - 2;
+	final int LOSE_VALUE = Integer.MIN_VALUE + 1;
+	
+	public Point bestPoint = new Point(); // (i, j)
 
 	public GroupAI(byte player, BoardModel state) {
 		super(player, state);
 		teamName = "GroupAI";
+		bestPoint.x = 0;
+		bestPoint.y = 0;
 	}
 
 	@Override
@@ -23,129 +30,103 @@ public class GroupAI extends CKPlayer {
 		return null;
 	}
 
-	// Only use heuristic on boards where it is the opponent's turn to play.
-	public int heuristic(BoardModel state){
-		ArrayList<ArrayList<Integer>> ret = waysToWin(state);
-		int total = 0, player1total = 0, player2total = 0;
-		int player1biggest = 0, player2biggest = 0;
-		int k = state.kLength;
-
-		// Player 1 has won on this board, or plays next and wins.
-		if ( ret.get(1).get(k) > 0 || (player == 2 && ret.get(1).get(k-1) > 0) ){
-			player1total = 1000000;
+	
+	public int heuristic(BoardModel state) {
+		int result = 0;
+		int winner = state.winner();
+		if ( winner == 2 ) {
+			return WIN_VALUE;
 		}
-		// Player 2 has won on this board, or plays next and wins.
-		else if ( ret.get(2).get(k) > 0 || (player == 1 && ret.get(2).get(k-1) > 0) ){
-			player2total = 1000000;
+		if ( winner == 1) {
+			return LOSE_VALUE;
 		}
-		else {
-			// Find how close each player is to winning.
-			for (int i = 1 ; i < k-1 ; i++) {
-				if ( ret.get(1).get(i) > 0 )
-					player1biggest = i;
-				if ( ret.get(2).get(i) > 0 )
-					player2biggest = i;
-			}
-
-//			if ( player == 1 ) {
-//				if ( player1biggest > player2biggest ){
-//					player1total = ret.get(1).get(player1biggest);
-//				}
-//				else {
-//					player2total = ret.get(2).get(player2biggest);
-//				}
-//			}
-//			else {
-//				if ( player2biggest > player1biggest ) {
-//					player2total = ret.get(2).get(player2biggest);
-//				}
-//				else {
-//					player1total = ret.get(1).get(player1biggest);
-//				}
-//			}
-			
-			if ( player1biggest > player2biggest ) {
-				player1total = ret.get(1).get(player1biggest);
-			}
-			else if ( player2biggest > player1biggest ) {
-				player2total = ret.get(2).get(player2biggest);
-			}
-			else {
-				if ( player == 1 ) {
-					player2total = ret.get(2).get(player2biggest);
-				}
-				else {
-					player1total = ret.get(1).get(player1biggest);
-				}
-			}
+		if ( winner == 0) {
+			return DRAW_VALUE;
 		}
-
-		total = player1total - player2total;
-		// player field in the method calling search aka US
-		if (player == 1) 
-			return total;
-		else
-			return 0 - total;
+		
+		ArrayList<ArrayList<Integer>> cont = waysToWin(state);
+		int player1total = 0, player2total = 0;
+		for ( int i = 1 ; i < state.kLength ; i++ ) {
+			int weight = (int) Math.pow(10, i-1);
+			player1total += cont.get(1).get(i) * weight;
+			player2total += cont.get(2).get(i) * weight;
+		}
+		
+		result = player1total - player2total;
+		
+		return result;
 	}
 
 	public byte nextPlayer(byte p) {
 		return (byte) p == (byte) 1 ? (byte) 2 : (byte) 1;
 	}
 
-	// move can be 1 or 2
-	public int search(BoardModel state, int depth, byte move) { return search(state,depth,move, Integer.MIN_VALUE, Integer.MAX_VALUE); }
-	public int search(BoardModel state, int depth, byte move, int alpha, int beta) {
-		// Check to see if this is a winning board
-		int winner = state.winner();
-		if ( winner == player ) {
-			return 1000000;
-		}
-		else if ( winner == nextPlayer(player) ){
-			return -1000000;
-		}
-		
-		// base case
-		if ( depth == 0 ) {
-			return heuristic(state);
-		}
-
-		int bestValue = 0;
-		boolean validMoveFound = false;		
-		for ( int i  = 0 ; i  < state.getWidth() ; i++) {
-			for (int j = 0 ; j < state.getHeight(); j++ ) {
-				if (state.getSpace(i, j) == 0) {
-					Point p = new Point(i,j);
-					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move));
-					if ( validMoveFound == false ) {
-						bestValue = value;
-						bestPoint.x = i;
-						bestPoint.y = j;
-						validMoveFound = true;
+	public int search(BoardModel state, int depth, byte move) {
+		int k = state.kLength;
+		int v = Integer.MIN_VALUE;
+		int bestV = Integer.MIN_VALUE;
+		for (int i = 0 ; i < state.width ; i++) {
+			for (int j = 0 ; j < state.height ; j++) {
+				Point p = new Point(i,j);
+				if (state.getSpace(p) == 0) {
+					v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move));
+					if ( v > bestV ) {
+						bestV = v;
+						bestPoint.x = p.x;
+						bestPoint.y = p.y;
 					}
-					if ( move == player ) {
-						if ( value > bestValue){
-							bestValue = value;
-							bestPoint.x = i;
-							bestPoint.y = j;
-						}
-						alpha = Math.max(alpha, bestValue);
-					}
-					else {
-						if ( value < bestValue) {
-							bestValue = value;
-							bestPoint.x = i;
-							bestPoint.y = j;
-						}
-						beta = Math.min(beta, bestValue);
-					}
-				}
-				if ( alpha >= beta ) {
-					return bestValue;
 				}
 			}
 		}
-		return bestValue;
+		
+		return v;
 	}
+
+	public int maxSearch(BoardModel state, int depth, byte move) {
+		if ( depth == 0 ) {
+			return heuristic(state);
+		}
+		
+		int h = heuristic(state);
+		if ( h == DRAW_VALUE || h == WIN_VALUE || h == LOSE_VALUE ) {
+			return h;
+		}
+		
+		int v = Integer.MIN_VALUE;
+		for (int i = 0 ; i < state.width ; i++) {
+			for (int j = 0 ; j < state.height ; j++) {
+				Point p = new Point(i,j);
+				if (state.getSpace(p) == 0) {
+					v = Math.max(v, minSearch(state.placePiece(p, move), depth-1, nextPlayer(move)) );
+				}
+			}
+		}
+		return v;
+	}
+
+	public int minSearch(BoardModel state, int depth, byte move) {
+		if ( depth == 0 ) {
+			return heuristic(state);
+		}
+		
+		int h = heuristic(state);
+		if ( h == DRAW_VALUE || h == WIN_VALUE || h == LOSE_VALUE ) {
+			return h;
+		}
+		
+		int v = Integer.MAX_VALUE;
+		for (int i = 0 ; i < state.width ; i++) {
+			for (int j = 0 ; j < state.height ; j++) {
+				Point p = new Point(i,j);
+				if (state.getSpace(p) == 0) {
+					v = Math.min(v, maxSearch(state.placePiece(p, move), depth-1, nextPlayer(move)) );
+				}
+			}
+		}
+		return v;
+	}
+
+	
 
 	// Returns the number of turns needed to win by each player for this board
 	// (player1, player2)
