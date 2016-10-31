@@ -315,7 +315,7 @@ public class GroupAI extends CKPlayer {
 				}
 			}
 		}
-
+		result.add(null);
 		result.add(p1totals);
 		result.add(p2totals);
 		return result;
