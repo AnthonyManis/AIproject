@@ -57,7 +57,7 @@ public class GroupAI extends CKPlayer {
 			}
 			else {
 				if ( player2biggest > player1biggest ) {
-					player2total += ret.get(0).get(player2biggest);
+					player2total += ret.get(1).get(player2biggest);
 				}
 				else {
 					player1total += ret.get(0).get(player1biggest);
@@ -100,7 +100,7 @@ public class GroupAI extends CKPlayer {
 			for (int j = 0 ; j < state.getHeight(); j++ ) {
 				if (state.getSpace(i, j) == 0) {
 					Point p = new Point(i,j);
-					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta);
+					int value = search(state.placePiece(p, move), depth-1, nextPlayer(move));
 					if ( validMoveFound == false ) {
 						bestValue = value;
 						bestPoint.x = i;
