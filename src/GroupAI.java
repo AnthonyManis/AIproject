@@ -31,36 +31,51 @@ public class GroupAI extends CKPlayer {
 		int k = state.kLength;
 
 		// Player 1 has won on this board, or plays next and wins.
-		if ( ret.get(0).get(k) > 0 || (player == 2 && ret.get(0).get(k-1) > 0) ){
+		if ( ret.get(1).get(k) > 0 || (player == 2 && ret.get(1).get(k-1) > 0) ){
 			player1total = 1000000;
 		}
 		// Player 2 has won on this board, or plays next and wins.
-		else if ( ret.get(1).get(k) > 0 || (player == 1 && ret.get(1).get(k-1) > 0) ){
+		else if ( ret.get(2).get(k) > 0 || (player == 1 && ret.get(2).get(k-1) > 0) ){
 			player2total = 1000000;
 		}
 		else {
 			// Find how close each player is to winning.
 			for (int i = 1 ; i < k-1 ; i++) {
-				if ( ret.get(0).get(i) > 0 )
-					player1biggest = i;
 				if ( ret.get(1).get(i) > 0 )
+					player1biggest = i;
+				if ( ret.get(2).get(i) > 0 )
 					player2biggest = i;
 			}
 
-			if ( player == 1 ) {
-				if ( player1biggest > player2biggest ){
-					player1total += ret.get(0).get(player1biggest);
-				}
-				else {
-					player2total += ret.get(1).get(player2biggest);
-				}
+//			if ( player == 1 ) {
+//				if ( player1biggest > player2biggest ){
+//					player1total = ret.get(1).get(player1biggest);
+//				}
+//				else {
+//					player2total = ret.get(2).get(player2biggest);
+//				}
+//			}
+//			else {
+//				if ( player2biggest > player1biggest ) {
+//					player2total = ret.get(2).get(player2biggest);
+//				}
+//				else {
+//					player1total = ret.get(1).get(player1biggest);
+//				}
+//			}
+			
+			if ( player1biggest > player2biggest ) {
+				player1total = ret.get(1).get(player1biggest);
+			}
+			else if ( player2biggest > player1biggest ) {
+				player2total = ret.get(2).get(player2biggest);
 			}
 			else {
-				if ( player2biggest > player1biggest ) {
-					player2total += ret.get(1).get(player2biggest);
+				if ( player == 1 ) {
+					player2total = ret.get(2).get(player2biggest);
 				}
 				else {
-					player1total += ret.get(0).get(player1biggest);
+					player1total = ret.get(1).get(player1biggest);
 				}
 			}
 		}
