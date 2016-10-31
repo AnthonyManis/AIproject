@@ -10,6 +10,7 @@ public class GroupAI extends CKPlayer {
 	final int WIN_VALUE = (int) 1.0e9;
 	final int DRAW_VALUE = (int) 1.0e9 - 1;
 	final int LOSE_VALUE = (int) -1.0e9;
+	final int INF = WIN_VALUE + 100;
 	final byte PLAYER1 = 1;
 	final byte PLAYER2 = 2;
 
@@ -26,7 +27,7 @@ public class GroupAI extends CKPlayer {
 	public Point getMove(BoardModel state) {
 
 		while (state.hasMovesLeft()){
-			System.out.println("best " + search(state, 3, player));
+			System.out.println("best " + search(state, 4, player));
 			return new Point(bestPoint.x, bestPoint.y);
 		}
 		return null;
@@ -79,13 +80,14 @@ public class GroupAI extends CKPlayer {
 		int k = state.kLength;
 		int v = 0;
 		int bestV = 0;
+		int alpha = -INF, beta = INF;
 		boolean validMoveFound = false;
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
 				if (state.getSpace(p) == 0) {
-					v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move));
-					
+					v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta);
+					alpha = Math.max(alpha, v);
 					// fallback in case we don't find anything we like
 					if ( !validMoveFound ) {
 						validMoveFound = true;
@@ -102,11 +104,10 @@ public class GroupAI extends CKPlayer {
 				}
 			}
 		}
-
 		return v;
 	}
 
-	public int maxSearch(BoardModel state, int depth, byte move) {
+	public int maxSearch(BoardModel state, int depth, byte move, int alpha, int beta) {
 		if ( depth == 0 ) {
 			return heuristic(state);
 		}
@@ -116,19 +117,21 @@ public class GroupAI extends CKPlayer {
 			return h;
 		}
 
-		int v = Integer.MIN_VALUE;
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
 				if (state.getSpace(p) == 0) {
-					v = Math.max(v, minSearch(state.placePiece(p, move), depth-1, nextPlayer(move)) );
+					alpha = Math.max(alpha, minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta) );
+					if (alpha >= beta) {
+						return INF;
+					}
 				}
 			}
 		}
-		return v;
+		return alpha;
 	}
 
-	public int minSearch(BoardModel state, int depth, byte move) {
+	public int minSearch(BoardModel state, int depth, byte move, int alpha, int beta) {
 		if ( depth == 0 ) {
 			return heuristic(state);
 		}
@@ -138,16 +141,18 @@ public class GroupAI extends CKPlayer {
 			return h;
 		}
 
-		int v = Integer.MAX_VALUE;
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
 				if (state.getSpace(p) == 0) {
-					v = Math.min(v, maxSearch(state.placePiece(p, move), depth-1, nextPlayer(move)) );
+					beta = Math.min(beta, maxSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta) );
+					if (alpha >= beta) {
+						return -INF;
+					}
 				}
 			}
 		}
-		return v;
+		return beta;
 	}
 
 
