@@ -125,7 +125,6 @@ public class GroupAI extends CKPlayer {
 					}
 				}
 				if ( alpha >= beta ) {
-					System.out.println(alpha + ", " + beta);
 					return bestValue;
 				}
 			}
