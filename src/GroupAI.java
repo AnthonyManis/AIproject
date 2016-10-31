@@ -77,13 +77,23 @@ public class GroupAI extends CKPlayer {
 
 	public int search(BoardModel state, int depth, byte move) {
 		int k = state.kLength;
-		int v = Integer.MIN_VALUE;
-		int bestV = Integer.MIN_VALUE;
+		int v = 0;
+		int bestV = 0;
+		boolean validMoveFound = false;
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
 				if (state.getSpace(p) == 0) {
 					v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move));
+					
+					// fallback in case we don't find anything we like
+					if ( !validMoveFound ) {
+						validMoveFound = true;
+						bestV = v;
+						bestPoint.x = p.x;
+						bestPoint.y = p.y;
+					}
+					
 					if ( v > bestV ) {
 						bestV = v;
 						bestPoint.x = p.x;
