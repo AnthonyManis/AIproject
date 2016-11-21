@@ -1,6 +1,8 @@
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.TimeoutException;
 
 import connectK.BoardModel;
@@ -18,7 +20,7 @@ public class GroupAI extends CKPlayer {
 
 	public Point bestPoint;
 	public int runDepth;
-	
+
 	public HashMap<BoardModel, Point> map;
 
 	public GroupAI(byte player, BoardModel state) {
@@ -57,7 +59,7 @@ public class GroupAI extends CKPlayer {
 			}
 		}
 		catch (TimeoutException e) {
-			System.out.println("canceled on runDepth " + runDepth);
+			System.out.println("runDepth " + (runDepth-1));
 			return bestPoint;
 		}
 
@@ -113,32 +115,45 @@ public class GroupAI extends CKPlayer {
 		int alpha = -INF, beta = INF;
 		boolean validMoveFound = false;
 		Point nonFinalBestPoint = null;
+
+		// Create a normal queue, starting with previous best move if present
+		// Then adding every other move
+		Queue<Point> stateQ = new LinkedList<Point>();
+		if ( map.get(state) != null ) {
+			stateQ.add(map.get(state));
+		}
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
-				Point p = new Point(i,j);
-				if (state.getSpace(p) == 0) {
-					// Before the recursive call, check for the deadline
-					if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
-						throw new TimeoutException();
-					}
-					v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline);
-					alpha = Math.max(alpha, v);
-					// fallback in case we don't find anything we like
-					if ( !validMoveFound ) {
-						validMoveFound = true;
-						bestV = v;
-						nonFinalBestPoint = p;
-					}
-
-					if ( v > bestV ) {
-						bestV = v;
-						nonFinalBestPoint = p;
-					}
+				stateQ.add(new Point(i,j));
+			}
+		}
+		// Iterate through the queue
+		while (!stateQ.isEmpty()) {
+			Point p = stateQ.poll();
+			if (state.getSpace(p) == 0) {
+				// Before the recursive call, check for the deadline
+				if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
+					throw new TimeoutException();
 				}
+				v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline);
+				alpha = Math.max(alpha, v);
+				// fallback in case we don't find anything we like
+				if ( !validMoveFound ) {
+					validMoveFound = true;
+					bestV = v;
+					nonFinalBestPoint = p;
+				}
+
+				if ( v > bestV ) {
+					bestV = v;
+					nonFinalBestPoint = p;
+				}
+
 			}
 		}
 		if ( nonFinalBestPoint != null ) {
 			bestPoint = nonFinalBestPoint;
+			map.put(state, bestPoint);
 		}
 		return v;
 	}
@@ -153,20 +168,44 @@ public class GroupAI extends CKPlayer {
 			return h;
 		}
 
+		// Create a normal queue, starting with previous best move if present
+		// Then adding every other move
+		Queue<Point> stateQ = new LinkedList<Point>();
+		if ( map.get(state) != null ) {
+			stateQ.add(map.get(state));
+		}
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
-				Point p = new Point(i,j);
-				if (state.getSpace(p) == 0) {
-					// Before the recursive call, check for the deadline
-					if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
-						throw new TimeoutException();
+				Point newPoint = new Point(i,j);
+				if (newPoint != map.get(state))
+					stateQ.add(newPoint);
+			}
+		}
+		// Iterate through the queue
+		Point bestAction = null;
+		while (!stateQ.isEmpty()) {
+			Point p = stateQ.poll();
+			if (state.getSpace(p) == 0) {
+				// Before the recursive call, check for the deadline
+				if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
+					throw new TimeoutException();
+				}
+				int v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline);
+				if ( v > alpha ) {
+					alpha = v;
+					bestAction = p;
+				}
+				if (alpha >= beta) {
+					if ( bestAction != null) {
+						map.put(state, bestAction);
 					}
-					alpha = Math.max(alpha, minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline) );
-					if (alpha >= beta) {
-						return INF;
-					}
+					return INF;
 				}
 			}
+		}
+
+		if ( bestAction != null) {
+			map.put(state, bestAction);
 		}
 		return alpha;
 	}
@@ -181,20 +220,44 @@ public class GroupAI extends CKPlayer {
 			return h;
 		}
 
+		// Create a normal queue, starting with previous best move if present
+		// Then adding every other move
+		Queue<Point> stateQ = new LinkedList<Point>();
+		if ( map.get(state) != null ) {
+			stateQ.add(map.get(state));
+		}
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
-				Point p = new Point(i,j);
-				if (state.getSpace(p) == 0) {
-					// Before the recursive call, check for the deadline
-					if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
-						throw new TimeoutException();
+				Point newPoint = new Point(i, j);
+				if (newPoint != map.get(state))
+					stateQ.add(newPoint);
+			}
+		}
+		// Iterate through the queue
+		Point bestAction = null;
+		while (!stateQ.isEmpty()) {
+			Point p = stateQ.poll();
+			if (state.getSpace(p) == 0) {
+				// Before the recursive call, check for the deadline
+				if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
+					throw new TimeoutException();
+				}
+				int v = maxSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline);
+				if ( v < beta) {
+					beta = v;
+					bestAction = p;
+				}
+				if (alpha >= beta) {
+					if ( bestAction != null) {
+						map.put(state, bestAction);
 					}
-					beta = Math.min(beta, maxSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline) );
-					if (alpha >= beta) {
-						return -INF;
-					}
+					return -INF;
 				}
 			}
+		}
+
+		if ( bestAction != null) {
+			map.put(state, bestAction);
 		}
 		return beta;
 	}
