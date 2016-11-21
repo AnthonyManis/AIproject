@@ -49,11 +49,12 @@ public class GroupAI extends CKPlayer {
 		runDepth = 1;
 		try {
 			while (System.currentTimeMillis() < endTime) {
-				System.out.println("best " + search(state, runDepth++, player, endTime));
+				System.out.println("best " + search(state, runDepth, player, endTime));
+				runDepth++;
 			}
 		}
 		catch (TimeoutException e) {
-			System.out.println("runDepth " + runDepth);
+			System.out.println("canceled on runDepth " + runDepth);
 			return bestPoint;
 		}
 
@@ -108,6 +109,7 @@ public class GroupAI extends CKPlayer {
 		int bestV = 0;
 		int alpha = -INF, beta = INF;
 		boolean validMoveFound = false;
+		Point nonFinalBestPoint = null;
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
@@ -122,17 +124,18 @@ public class GroupAI extends CKPlayer {
 					if ( !validMoveFound ) {
 						validMoveFound = true;
 						bestV = v;
-						bestPoint.x = p.x;
-						bestPoint.y = p.y;
+						nonFinalBestPoint = p;
 					}
 
 					if ( v > bestV ) {
 						bestV = v;
-						bestPoint.x = p.x;
-						bestPoint.y = p.y;
+						nonFinalBestPoint = p;
 					}
 				}
 			}
+		}
+		if ( nonFinalBestPoint != null ) {
+			bestPoint = nonFinalBestPoint;
 		}
 		return v;
 	}
