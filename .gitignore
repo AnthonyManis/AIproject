@@ -51,3 +51,4 @@ Temporary Items
 *.jar
 pseudo.java
 *.class
+.metadata
