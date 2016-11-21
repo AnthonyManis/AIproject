@@ -32,7 +32,11 @@ public class GroupAI extends CKPlayer {
 		}
 		return null;
 	}
-
+	
+	@Override
+	public Point getMove(BoardModel state, int deadline) {
+		return getMove(state);
+	}
 
 	public int heuristic(BoardModel state) {
 		int result = 0;
@@ -346,8 +350,4 @@ public class GroupAI extends CKPlayer {
 		return result;
 	}
 
-	@Override
-	public Point getMove(BoardModel state, int deadline) {
-		return getMove(state);
-	}
 }
