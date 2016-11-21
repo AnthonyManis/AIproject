@@ -1,5 +1,6 @@
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 
 import connectK.BoardModel;
@@ -15,14 +16,16 @@ public class GroupAI extends CKPlayer {
 	final byte PLAYER1 = 1;
 	final byte PLAYER2 = 2;
 
-	public Point bestPoint = new Point(); // (i, j)
+	public Point bestPoint;
 	public int runDepth;
+	
+	public HashMap<BoardModel, Point> map;
 
 	public GroupAI(byte player, BoardModel state) {
 		super(player, state);
 		teamName = "GroupAI";
-		bestPoint.x = 0;
-		bestPoint.y = 0;
+		bestPoint = new Point();
+		map = new HashMap<BoardModel, Point>();
 	}
 
 	@Override
