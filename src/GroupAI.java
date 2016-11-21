@@ -1,8 +1,10 @@
-import connectK.CKPlayer;
-import connectK.BoardModel;
 import java.awt.Point;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import connectK.BoardModel;
+import connectK.CKPlayer;
 
 
 public class GroupAI extends CKPlayer {
@@ -15,12 +17,14 @@ public class GroupAI extends CKPlayer {
 	final byte PLAYER2 = 2;
 
 	public Point bestPoint = new Point(); // (i, j)
+	public Map<BoardModel, Point> map;
 
 	public GroupAI(byte player, BoardModel state) {
 		super(player, state);
 		teamName = "GroupAI";
 		bestPoint.x = 0;
 		bestPoint.y = 0;
+		map = new HashMap<BoardModel, Point>();
 	}
 
 	@Override
@@ -32,7 +36,14 @@ public class GroupAI extends CKPlayer {
 		}
 		return null;
 	}
-
+	
+	@Override
+	public Point getMove(BoardModel state, int deadline) {
+		
+		// While deadline is not reached, keep calling search for deeper level
+		
+		return getMove(state);
+	}
 
 	public int heuristic(BoardModel state) {
 		int result = 0;
@@ -85,6 +96,12 @@ public class GroupAI extends CKPlayer {
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
+				// If map.get(state) exists, search it first
+				// Explore map.get(state); (best point first)
+				if ( i == 0 && j == 0 && map.get(state) != null ) {
+					j--; // cover 0,0 with next iteration of for loop
+					p = map.get(state);
+				}
 				if (state.getSpace(p) == 0) {
 					v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta);
 					alpha = Math.max(alpha, v);
@@ -94,12 +111,14 @@ public class GroupAI extends CKPlayer {
 						bestV = v;
 						bestPoint.x = p.x;
 						bestPoint.y = p.y;
+						map.put(state, bestPoint);
 					}
 					
 					if ( v > bestV ) {
 						bestV = v;
 						bestPoint.x = p.x;
 						bestPoint.y = p.y;
+						map.put(state, bestPoint);
 					}
 				}
 			}
@@ -117,17 +136,37 @@ public class GroupAI extends CKPlayer {
 			return h;
 		}
 
+		Point bestMove = new Point();
+		boolean bestMoveFound = false;
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
+				// If map.get(state) exists, search it first
+				// Explore map.get(state); (best point first)
+				if ( i == 0 && j == 0 && map.get(state) != null ) {
+					j--; // cover 0,0 with next iteration of for loop
+					p = map.get(state);
+				}
 				if (state.getSpace(p) == 0) {
-					alpha = Math.max(alpha, minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta) );
+					int v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta);
+					if ( !bestMoveFound ) {
+						bestMove = p;
+						bestMoveFound = true;
+					}
+					if ( v > alpha ) {
+						alpha = v;
+						bestMove = p;
+					}
 					if (alpha >= beta) {
+						// Put point into the map
+						map.put(state, bestMove);
 						return INF;
 					}
 				}
 			}
 		}
+		// Put point into the map
+		map.put(state, bestMove);
 		return alpha;
 	}
 
@@ -141,17 +180,37 @@ public class GroupAI extends CKPlayer {
 			return h;
 		}
 
+		Point bestMove = new Point();
+		boolean bestMoveFound = false;
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
+				// If map.get(state) exists, search it first
+				// Explore map.get(state); (best point first)
+				if ( i == 0 && j == 0 && map.get(state) != null ) {
+					j--; // cover 0,0 with next iteration of for loop
+					p = map.get(state);
+				}
 				if (state.getSpace(p) == 0) {
-					beta = Math.min(beta, maxSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta) );
+					int v = maxSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta);
+					if ( !bestMoveFound ) {
+						bestMove = p;
+						bestMoveFound = true;
+					}
+					if ( v < beta ) {
+						beta = v;
+						bestMove = p;
+					}
 					if (alpha >= beta) {
+						// Put point into the map
+						map.put(state, bestMove);
 						return -INF;
 					}
 				}
 			}
 		}
+		// Put point into the map
+		map.put(state, bestMove);
 		return beta;
 	}
 
@@ -346,8 +405,5 @@ public class GroupAI extends CKPlayer {
 		return result;
 	}
 
-	@Override
-	public Point getMove(BoardModel state, int deadline) {
-		return getMove(state);
-	}
+	
 }
