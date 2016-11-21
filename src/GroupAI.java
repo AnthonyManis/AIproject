@@ -1,7 +1,6 @@
 import connectK.CKPlayer;
 import connectK.BoardModel;
 import java.awt.Point;
-import java.util.List;
 import java.util.ArrayList;
 
 
@@ -81,7 +80,6 @@ public class GroupAI extends CKPlayer {
 	}
 
 	public int search(BoardModel state, int depth, byte move) {
-		int k = state.kLength;
 		int v = 0;
 		int bestV = 0;
 		int alpha = -INF, beta = INF;
