@@ -1,7 +1,9 @@
-import connectK.CKPlayer;
-import connectK.BoardModel;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
+
+import connectK.BoardModel;
+import connectK.CKPlayer;
 
 
 public class GroupAI extends CKPlayer {
@@ -14,6 +16,7 @@ public class GroupAI extends CKPlayer {
 	final byte PLAYER2 = 2;
 
 	public Point bestPoint = new Point(); // (i, j)
+	public int runDepth;
 
 	public GroupAI(byte player, BoardModel state) {
 		super(player, state);
@@ -26,15 +29,36 @@ public class GroupAI extends CKPlayer {
 	public Point getMove(BoardModel state) {
 
 		while (state.hasMovesLeft()){
-			System.out.println("best " + search(state, 4, player));
-			return new Point(bestPoint.x, bestPoint.y);
+			try {
+				System.out.println("best " + search(state, 4, player, 0));
+			}
+			catch (TimeoutException e) {
+				return bestPoint;
+			}
+			return bestPoint;
 		}
 		return null;
 	}
-	
+
 	@Override
 	public Point getMove(BoardModel state, int deadline) {
-		return getMove(state);
+		long marginTime = 100L;
+		long endTime = System.currentTimeMillis() + deadline - marginTime;
+
+		// Call search with a deadline
+		runDepth = 1;
+		try {
+			while (System.currentTimeMillis() < endTime) {
+				System.out.println("best " + search(state, runDepth++, player, endTime));
+			}
+		}
+		catch (TimeoutException e) {
+			System.out.println("runDepth " + runDepth);
+			return bestPoint;
+		}
+
+
+		return bestPoint;
 	}
 
 	public int heuristic(BoardModel state) {
@@ -79,7 +103,7 @@ public class GroupAI extends CKPlayer {
 		return (byte) p == (byte) 1 ? (byte) 2 : (byte) 1;
 	}
 
-	public int search(BoardModel state, int depth, byte move) {
+	public int search(BoardModel state, int depth, byte move, long deadline) throws TimeoutException {
 		int v = 0;
 		int bestV = 0;
 		int alpha = -INF, beta = INF;
@@ -88,7 +112,11 @@ public class GroupAI extends CKPlayer {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
 				if (state.getSpace(p) == 0) {
-					v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta);
+					// Before the recursive call, check for the deadline
+					if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
+						throw new TimeoutException();
+					}
+					v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline);
 					alpha = Math.max(alpha, v);
 					// fallback in case we don't find anything we like
 					if ( !validMoveFound ) {
@@ -97,7 +125,7 @@ public class GroupAI extends CKPlayer {
 						bestPoint.x = p.x;
 						bestPoint.y = p.y;
 					}
-					
+
 					if ( v > bestV ) {
 						bestV = v;
 						bestPoint.x = p.x;
@@ -109,7 +137,7 @@ public class GroupAI extends CKPlayer {
 		return v;
 	}
 
-	public int maxSearch(BoardModel state, int depth, byte move, int alpha, int beta) {
+	public int maxSearch(BoardModel state, int depth, byte move, int alpha, int beta, long deadline) throws TimeoutException {
 		if ( depth == 0 ) {
 			return heuristic(state);
 		}
@@ -123,7 +151,11 @@ public class GroupAI extends CKPlayer {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
 				if (state.getSpace(p) == 0) {
-					alpha = Math.max(alpha, minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta) );
+					// Before the recursive call, check for the deadline
+					if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
+						throw new TimeoutException();
+					}
+					alpha = Math.max(alpha, minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline) );
 					if (alpha >= beta) {
 						return INF;
 					}
@@ -133,7 +165,7 @@ public class GroupAI extends CKPlayer {
 		return alpha;
 	}
 
-	public int minSearch(BoardModel state, int depth, byte move, int alpha, int beta) {
+	public int minSearch(BoardModel state, int depth, byte move, int alpha, int beta, long deadline) throws TimeoutException {
 		if ( depth == 0 ) {
 			return heuristic(state);
 		}
@@ -147,7 +179,11 @@ public class GroupAI extends CKPlayer {
 			for (int j = 0 ; j < state.height ; j++) {
 				Point p = new Point(i,j);
 				if (state.getSpace(p) == 0) {
-					beta = Math.min(beta, maxSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta) );
+					// Before the recursive call, check for the deadline
+					if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
+						throw new TimeoutException();
+					}
+					beta = Math.min(beta, maxSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline) );
 					if (alpha >= beta) {
 						return -INF;
 					}
