@@ -1,3 +1,5 @@
+import static org.junit.Assert.assertTrue;
+
 import java.awt.Point;
 
 import org.junit.Before;
@@ -42,8 +44,8 @@ public class GroupAITest {
 	public void winningSpacesTest() {
 
 		System.out.println(board.toString());
-		System.out.println(ai.s.waysToWin(board));
-		System.out.println(ai.s.heuristic(board));
+		System.out.println(ai.waysToWin(board));
+		System.out.println(ai.heuristic(board));
 //		System.out.println(ai.search(board, 3, (byte)2));
 //		System.out.println(ai.bestPoint.x + ", " + ai.bestPoint.y);
 //		assertTrue(ai.waysToWin(board).get(0) < ai.waysToWin(board).get(1));
