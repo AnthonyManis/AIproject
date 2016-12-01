@@ -124,31 +124,32 @@ public class GroupAI extends CKPlayer {
 		}
 		for (int i = 0 ; i < state.width ; i++) {
 			for (int j = 0 ; j < state.height ; j++) {
-				stateQ.add(new Point(i,j));
+				Point p = new Point(i,j);
+				if (state.getSpace(p) == 0)
+					stateQ.add(p);
+					if(state.gravity)
+						break;				
 			}
 		}
 		// Iterate through the queue
 		while (!stateQ.isEmpty()) {
 			Point p = stateQ.poll();
-			if (state.getSpace(p) == 0) {
-				// Before the recursive call, check for the deadline
-				if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
-					throw new TimeoutException();
-				}
-				v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline);
-				alpha = Math.max(alpha, v);
-				// fallback in case we don't find anything we like
-				if ( !validMoveFound ) {
-					validMoveFound = true;
-					bestV = v;
-					nonFinalBestPoint = p;
-				}
+			// Before the recursive call, check for the deadline
+			if ( deadline != 0 && System.currentTimeMillis() >= deadline ) {
+				throw new TimeoutException();
+			}
+			v = minSearch(state.placePiece(p, move), depth-1, nextPlayer(move), alpha, beta, deadline);
+			alpha = Math.max(alpha, v);
+			// fallback in case we don't find anything we like
+			if ( !validMoveFound ) {
+				validMoveFound = true;
+				bestV = v;
+				nonFinalBestPoint = p;
+			}
 
-				if ( v > bestV ) {
-					bestV = v;
-					nonFinalBestPoint = p;
-				}
-
+			if ( v > bestV ) {
+				bestV = v;
+				nonFinalBestPoint = p;
 			}
 		}
 		if ( nonFinalBestPoint != null ) {
