@@ -35,7 +35,8 @@ public class GroupAI extends CKPlayer {
 
 		while (state.hasMovesLeft()){
 			try {
-				System.out.println("best " + search(state, 4, player, 0));
+				search(state, 4, player, 0);
+//				System.out.println("best " + search(state, 4, player, 0));
 			}
 			catch (TimeoutException e) {
 				return bestPoint;
@@ -47,14 +48,15 @@ public class GroupAI extends CKPlayer {
 
 	@Override
 	public Point getMove(BoardModel state, int deadline) {
-		long marginTime = 100L;
+		long marginTime = 1000L;
 		long endTime = System.currentTimeMillis() + deadline - marginTime;
 
 		// Call search with a deadline
 		runDepth = 1;
 		try {
 			while (System.currentTimeMillis() < endTime) {
-				System.out.println("best " + search(state, runDepth, player, endTime));
+				search(state, runDepth, player, endTime);
+//				System.out.println("best " + search(state, runDepth, player, endTime));
 				runDepth++;
 			}
 		}
